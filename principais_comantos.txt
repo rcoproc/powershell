@@ -1,0 +1,190 @@
+
+Principais comandos do PSHELL
+00) MANUAL completo EM PORTUGUÊS
+
+http://dc144.4shared.com/doc/hWogPX0u/preview.html#_Toc146442308
+
+0101) verificar conteúdo de arquivo texto.
+Get-Content -Path C:\LOG\gx_0825_113150_default.log -Wait
+Get-Content -Path C:\LOG\revvisa_erro_log.log -Wait
+Get-Content -Path C:\C:\Program Files\Apache Software Foundation\Tomcat 7.0\logs\catalina.2015-10-02t.log -Wait
+
+Listando Adaptadores ativos(up)
+
+Get-NetAdapter -physical | where status -eq 'up'
+
+ou
+
+Get-NetAdapter | where status -eq 'up'
+
+01) Lista todos os processos em ordem descendente de consumo de memória
+
+
+get-process chrome | sort-object -property WS -descending
+get-process w3wp | sort-object -property WS -descending
+get-process genexus | sort-object -property WS -descending
+get-process chrome | sort-object -property WS -descending | Measure-object -property ws -sum
+
+get-process | sort-object -property cpu -descending | Select-Object -first 80
+get-process | sort-object -property cpu -descending | Measure-object -property cpu -sum -max -min 
+
+// Lista completa(mais detalhada) objetos da janela principal
+get-process | where {$_.mainWindowTitle} | sort-object -property ws -descending | format-table id, name, cpu, ws, pm, vm, mainwindowtitle -autosize 
+get-process | where {$_.mainWindowTitle} | sort-object -property name | format-table id, name, cpu, ws, pm, vm, mainwindowtitle -autosize 
+get-process | where {$_.mainWindowTitle} | sort-object -property ws -descending | format-table id, name, cpu, ws, pm, vm, mainwindowtitle -autosize 
+
+
+Salvando em um arquivo
+Get-Process | Out-File -FilePath C:\scripts\processlist.txt
+
+02) Para ou reinicia SERVIÇOS
+
+// Para Serviço MS-SQLServer
+stop-service mssqlserver -force 
+
+// Reinicia SQL Server
+stop-service mssqlserver -force 
+
+// Para Serviço do POSTGRES
+stop-service postgresql-x64-9.5 -force
+
+// Starta Serviço do POSTGRES
+start-service postgresql-x64-9.5
+
+get-content arquivo -wait
+
+
+-- Inicia Serviço do MYSQL
+foreach ($svc in Get-Service){
+  if(($svc.displayname.StartsWith("MySQL")) -AND ($svc.Status -eq "Stopped")) {
+    echo $svc.DisplayName
+    Start-Service $svc.name
+  }
+}
+get-service MYSQL56
+
+
+-- Para o Serviço do MYSQL
+foreach ($svc in Get-Service){
+  if(($svc.displayname.StartsWith("MySQL")) -AND ($svc.Status -eq "Running")) {
+    echo $svc.DisplayName
+    Stop-Service $svc.name
+  }
+}
+get-service MYSQL56
+
+
+foreach ($svc in Get-Service){
+  if(($svc.displayname.StartsWith("MSSQLSERVER")) -AND ($svc.Status -eq "Stopped")) {
+    echo $svc.DisplayName
+    Start-Service $svc.name
+  }
+}
+
+
+get-wmiobject Win32_StartupCommand | sort -property Name | select -property Name, Location, Command // Reinicia
+
+03) Para Processos
+Get-Process fdm     | Stop-Process				# Parando FREE DOWNLOAD MANAGER
+Get-Process adb     | Stop-Process				# 	 "		ADB do Android
+Get-Process chrome  | Stop-Process			    #	 " CHROME
+Get-Process firefox | Stop-Process				# Parando Firefox
+Get-Process ruby    | Stop-Process				#	 " RUBY
+Get-Process w3wp    | Stop-Process				#	 " SITE
+Get-Process Taskmgr | Stop-Process			    #	 " Task Manager
+Get-Process cmd     | Stop-Process				#	 " PROMPT CMD
+Get-Process genexus | Stop-Process	
+Get-Process postgres | Stop-Process
+Get-Process msbuild | Stop-Process
+Get-Process genexus | Stop-Process
+
+//  Parando pelo ID 
+stop-process -id 6500
+
+Start-Process msnmsgr ou 
+Start-Process MySQL56
+
+Start-Process "C:\Users\Ricardo\AppData\Roaming\Dropbox\bin\Dropbox.exe"
+Start-Process "C:\Program Files\MySQL\MySQL Server 5.6\bin\mysqld" --defaults-file='C:\ProgramData\MySQL\MySQL Server 5.6\my.ini' 
+Write-host "MySQL56"
+
+04) Ver histórico de comandos
+Get-History
+
+05) Criando Transcript(log dos seus comandos)
+
+http://www.linhadecodigo.com.br/artigo/2363/windows-powershell-utilizando-transcript.aspx
+
+Start-Transcript
+Stop-Transcript
+
+06) Listando todos os comandos e funções do PS
+
+Get-Command -Type Cmdlet | select Name,Definition | ft -auto
+ Get-Command -Type Function | select Name,Definition | ft -auto
+ 
+07) Help de algum comando
+
+help Get-Content -Full
+get-help get-service
+Get-Command -CommandType Alias  => Mostra atalho dos comandos
+get-service | get-member
+
+Get-Command -Noun Service
+
+10) Manual mais completo
+http://dc144.4shared.com/doc/hWogPX0u/preview.html
+
+11) Bloqueando a ESTAÇÃO
+rundll32.exe user32.dll,LockWorkStation
+
+Desligar : Shutdown.exe -s -t 00
+
+Reiniciar: Shutdown.exe -r -t 00
+
+Hibernar: rundll32.exe PowrProf.dll,SetSuspendState
+
+Suspender: rundll32.exe powrprof.dll,SetSuspendState 0,1,0
+
+Bloquear: Rundll32.exe User32.dll,LockWorkStation
+
+
+12)
+(Get-WmiObject -Class Win32_OperatingSystem -ComputerName .).InvokeMethod("Win32Shutdown",0)
+
+13) Mostra os serviços que estiverem em modo Running
+get-service | Where-Object {$_.Status -eq "Running"}
+
+14) Exporta os processos para html
+get-process | ConvertTo-Html | Out-File "Processos.hml"
+
+15) Exporta os processos para .csv
+get-process | Export-Csv | Out-File "Processos.csv"
+
+16) Relação de Alias para os comandos 
+get-alias
+
+17) Sobrepondo conteúdo da saida para um arquivo TXT
+GET-DATE > processos.txt
+get-process | Format-List >> processos.txt
+
+18) Janela de GridView com filtro dos processos
+get-process | Out-GridView
+
+19) Filtrando os diretórios baseando em uma coluna
+Get-ChildItem \ | Where-Object {$_.Name -like "Windows"}
+
+20) Habilitando acesso remoto "Enable-PSRemoting"
+
+Enable-PSRemoting
+
+habilitando máquinas fora do dominio
+
+winrm set winrm/config/client @{Trustedhosts="ComputadorRemoto"}
+
+21) Faz uma conexão com o computdor remoto, executa o comando 
+
+Invoke-Command -ComputerName osiris -ScriptBlock {Get-WmiObject Win32_bios}
+
+22) Nome do Computador 
+hostname
